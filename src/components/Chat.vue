@@ -67,6 +67,19 @@ export default {
 }
 .chat .time{
   display: block;
-  font-size: 1.2em;
+  font-size: 0.8em;
+}
+
+.messages .name {
+  margin-right: 0.6em;
+}
+
+.messages {
+  max-height: 300px;
+  overflow: auto;
+}
+
+.messages::-webkit-scrollbar {
+  width: 5px;
 }
 </style>
