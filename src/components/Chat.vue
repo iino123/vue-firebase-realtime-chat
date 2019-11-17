@@ -1,13 +1,13 @@
 <template>
   <div class="chat container">
-    <h2 class="center teal-text">Ninja Chat</h2>
+    <h2 class="center teal-text">Simple RealTime Chat</h2>
     <div class="card">
       <div class="card-content">
-        <ul class="messages">
-          <li>
-            <span class="teal-text">name</span>
-            <span class="grey-text text-darken-3">message</span>
-            <span class="grey-text time">time</span>
+        <ul class="messages" v-chat-scroll>
+          <li v-for="message in messages" :key="message.id">
+            <span class="teal-text name">{{ message.name }}</span>
+            <span class="grey-text text-darken-3">{{ message.content }}</span>
+            <span class="grey-text time">{{ message.timestamp }}</span>
           </li>
         </ul>
       </div>
@@ -20,6 +20,9 @@
 
 <script>
 import NewMessage from '@/components/NewMessage'
+import db from '@/firebase/init'
+import moment from 'moment'
+
 export default {
   name: 'Chat',
   props: ['name'],
@@ -28,7 +31,28 @@ export default {
   },
   data(){
     return{
+      messages: []
     }
+  },
+  created() {
+    // timestampでソート
+    let ref = db.collection('messages').orderBy('timestamp')
+
+    // firestoreのcollectionをサブスクライブする
+    // 初回はcollection内のすべてを取得
+    ref.onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if(change.type == 'added') {
+          let doc = change.doc
+          this.messages.push({
+            id: doc.id,
+            name: doc.data().name,
+            content: doc.data().content,
+            timestamp: moment(doc.data().timestamp).format('lll')
+          })
+        }
+      })
+    })
   }
 }
 </script>
